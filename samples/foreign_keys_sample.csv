@@ -1,0 +1,6 @@
+ParentTable,ParentColumn,ReferencedTable,ReferencedColumn,ConstraintName
+Prescriptions,PatientID,Patients,PatientID,FK_Prescriptions_Patients
+Prescriptions,MedicationID,Medications,MedicationID,FK_Prescriptions_Medications
+Inventory,MedicationID,Medications,MedicationID,FK_Inventory_Medications
+Inventory,StoreID,Pharmacy_Stores,StoreID,FK_Inventory_Stores
+Insurance_Claims,PrescriptionID,Prescriptions,PrescriptionID,FK_Claims_Prescriptions

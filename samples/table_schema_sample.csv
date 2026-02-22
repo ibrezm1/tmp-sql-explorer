@@ -1,0 +1,44 @@
+DatabaseName,TableName,TableDescription,ColumnName,DataType,IsNullable,Description
+Pharmacy_Real_v1,Patients,"Master patient index containing demographic, contact, and enrollment metadata. Use this as the source of truth for identity.",PatientID,INT (PK),NO,Primary unique identifier.
+Pharmacy_Real_v1,Patients,"Master patient index containing demographic, contact, and enrollment metadata. Use this as the source of truth for identity.",FirstName,VARCHAR(100),NO,Patient legal first name.
+Pharmacy_Real_v1,Patients,"Master patient index containing demographic, contact, and enrollment metadata. Use this as the source of truth for identity.",LastName,VARCHAR(100),NO,Patient legal last name.
+Pharmacy_Real_v1,Patients,"Master patient index containing demographic, contact, and enrollment metadata. Use this as the source of truth for identity.",DOB,DATE,NO,Used for age verification and pediatric dosing checks.
+Pharmacy_Real_v1,Patients,"Master patient index containing demographic, contact, and enrollment metadata. Use this as the source of truth for identity.",Gender,CHAR(1),YES,M/F/O/U classification.
+Pharmacy_Real_v1,Patients,"Master patient index containing demographic, contact, and enrollment metadata. Use this as the source of truth for identity.",SSN_Last4,CHAR(4),YES,For identity confirmation during verification.
+Pharmacy_Real_v1,Patients,"Master patient index containing demographic, contact, and enrollment metadata. Use this as the source of truth for identity.",PrimaryPhone,VARCHAR(20),YES,Primary contact number.
+Pharmacy_Real_v1,Patients,"Master patient index containing demographic, contact, and enrollment metadata. Use this as the source of truth for identity.",Email,VARCHAR(255),YES,Electronic mail address.
+Pharmacy_Real_v1,Patients,"Master patient index containing demographic, contact, and enrollment metadata. Use this as the source of truth for identity.",AddressLine1,VARCHAR(255),NO,Street address.
+Pharmacy_Real_v1,Patients,"Master patient index containing demographic, contact, and enrollment metadata. Use this as the source of truth for identity.",City,VARCHAR(100),NO,Mailing city.
+Pharmacy_Real_v1,Patients,"Master patient index containing demographic, contact, and enrollment metadata. Use this as the source of truth for identity.",State,CHAR(2),NO,US State code.
+Pharmacy_Real_v1,Patients,"Master patient index containing demographic, contact, and enrollment metadata. Use this as the source of truth for identity.",ZipCode,VARCHAR(10),NO,Mailing postal code.
+Pharmacy_Real_v1,Patients,"Master patient index containing demographic, contact, and enrollment metadata. Use this as the source of truth for identity.",EnrollmentDate,DATETIME,NO,Date of first registration.
+Pharmacy_Real_v1,Medications,"Central pharmacy drug catalog including brand names, clinical schedules, and logistics metadata.",MedicationID,INT (PK),NO,Primary unique identifier.
+Pharmacy_Real_v1,Medications,"Central pharmacy drug catalog including brand names, clinical schedules, and logistics metadata.",BrandName,VARCHAR(200),NO,The commercial name of the drug product.
+Pharmacy_Real_v1,Medications,"Central pharmacy drug catalog including brand names, clinical schedules, and logistics metadata.",GenericName,VARCHAR(200),NO,The standardized chemical name.
+Pharmacy_Real_v1,Medications,"Central pharmacy drug catalog including brand names, clinical schedules, and logistics metadata.",SKU,VARCHAR(50),NO,Internal stock keeping unit.
+Pharmacy_Real_v1,Medications,"Central pharmacy drug catalog including brand names, clinical schedules, and logistics metadata.",DEA_Schedule,TINYINT,NO,Schedule I to V controlled substance status.
+Pharmacy_Real_v1,Medications,"Central pharmacy drug catalog including brand names, clinical schedules, and logistics metadata.",DosageForm,VARCHAR(50),NO,Tablet, Capsule, Liquid, etc.
+Pharmacy_Real_v1,Medications,"Central pharmacy drug catalog including brand names, clinical schedules, and logistics metadata.",Strength,VARCHAR(50),NO,Mg or mL concentration.
+Pharmacy_Real_v1,Medications,"Central pharmacy drug catalog including brand names, clinical schedules, and logistics metadata.",UnitOfMeasure,VARCHAR(20),NO,Count, Vol, or Weight units.
+Pharmacy_Real_v1,Medications,"Central pharmacy drug catalog including brand names, clinical schedules, and logistics metadata.",PackageSize,DECIMAL(10,2),NO,Units per retail package.
+Pharmacy_Real_v1,Medications,"Central pharmacy drug catalog including brand names, clinical schedules, and logistics metadata.",Manufacturer,VARCHAR(150),NO,Pharma company name.
+Pharmacy_Real_v1,Medications,"Central pharmacy drug catalog including brand names, clinical schedules, and logistics metadata.",StorageCondition,VARCHAR(100),YES,Refrigerated or Ambient.
+Pharmacy_Real_v1,Prescriptions,"Clinical script records that link Patients, Providers, and Medications for fulfillment.",PrescriptionID,BIGINT (PK),NO,Unique script number.
+Pharmacy_Real_v1,Prescriptions,"Clinical script records that link Patients, Providers, and Medications for fulfillment.",PatientID,INT (FK),NO,Links back to the Patients table.
+Pharmacy_Real_v1,Prescriptions,"Clinical script records that link Patients, Providers, and Medications for fulfillment.",MedicationID,INT (FK),NO,Links back to the Medications table.
+Pharmacy_Real_v1,Prescriptions,"Clinical script records that link Patients, Providers, and Medications for fulfillment.",DateWritten,DATE,NO,Original signature date.
+Pharmacy_Real_v1,Prescriptions,"Clinical script records that link Patients, Providers, and Medications for fulfillment.",RefillsAllowed,TINYINT,NO,Maximum refills permitted.
+Pharmacy_Real_v1,Prescriptions,"Clinical script records that link Patients, Providers, and Medications for fulfillment.",QuantityDispensed,DECIMAL(10,2),NO,Amount per fill.
+Pharmacy_Real_v1,Prescriptions,"Clinical script records that link Patients, Providers, and Medications for fulfillment.",DaysSupply,SMALLINT,NO,Duration of medication per fill.
+Pharmacy_Real_v1,Prescriptions,"Clinical script records that link Patients, Providers, and Medications for fulfillment.",DosageInstructions,TEXT,NO,Sig instructions for patient labeling.
+Pharmacy_Real_v1,Prescriptions,"Clinical script records that link Patients, Providers, and Medications for fulfillment.",IsActive,BIT,NO,Current status of order.
+Pharmacy_Real_v1,Inventory,"Stock levels and tracking for shelf medications per store location.",InventoryID,INT (PK),NO,Primary key for stock record.
+Pharmacy_Real_v1,Inventory,"Stock levels and tracking for shelf medications per store location.",StoreID,INT (FK),NO,Reference to Stores.
+Pharmacy_Real_v1,Inventory,"Stock levels and tracking for shelf medications per store location.",MedicationID,INT (FK),NO,Reference to Medications.
+Pharmacy_Real_v1,Inventory,"Stock levels and tracking for shelf medications per store location.",QuantityOnHand,INT,NO,Current shelf count.
+Pharmacy_Real_v1,Inventory,"Stock levels and tracking for shelf medications per store location.",ReorderPoint,INT,NO,Auto-refill threshold.
+Pharmacy_Real_v1,Inventory,"Stock levels and tracking for shelf medications per store location.",LastRestockDate,DATETIME,YES,Date of last stock update.
+Pharmacy_Real_v1,Inventory,"Stock levels and tracking for shelf medications per store location.",ExpiryDate,DATE,YES,Lot expiration date.
+Pharmacy_Real_v1,Inventory,"Stock levels and tracking for shelf medications per store location.",LocationBin,VARCHAR(20),YES,Physical shelf coordinates.
+Pharmacy_Real_v1,Inventory,"Stock levels and tracking for shelf medications per store location.",UnitCost,MONEY,NO,Acquisition cost per unit.
+Pharmacy_Real_v1,Inventory,"Stock levels and tracking for shelf medications per store location.",IsDiscontinued,BIT,NO,Discontinuation flag.
