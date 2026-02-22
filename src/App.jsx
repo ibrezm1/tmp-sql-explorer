@@ -4,6 +4,7 @@ import ExplorerView from './components/ExplorerView';
 import ChatView from './components/ChatView';
 import QueryGuide from './components/QueryGuide';
 import TableModal from './components/TableModal';
+import { callAI } from './services/aiService';
 
 const API_KEY = ""; // Provided by environment at runtime
 
@@ -21,6 +22,11 @@ const App = () => {
   const [isChatLoading, setIsChatLoading] = useState(false);
   const [viewMode, setViewMode] = useState('explorer');
   const [copyStatus, setCopyStatus] = useState(null);
+
+  const [aiProvider, setAiProvider] = useState('gemini');
+  const [vertexProject, setVertexProject] = useState('');
+  const [vertexLocation, setVertexLocation] = useState('us-central1');
+  const [vertexToken, setVertexToken] = useState('');
 
   const chatEndRef = useRef(null);
 
@@ -225,6 +231,34 @@ const App = () => {
     reader.readAsText(file);
   };
 
+  const getSchemaContext = () => {
+    if (tablesData.length === 0) return "No schema loaded.";
+
+    // Group columns by table
+    const tables = {};
+    tablesData.forEach(row => {
+      const tName = row.TableName || row.Table;
+      if (!tables[tName]) {
+        tables[tName] = { desc: row.TableDescription || '', cols: [] };
+      }
+      tables[tName].cols.push(`${row.ColumnName} (${row.DataType}) - ${row.Description || ''}`);
+    });
+
+    let schemaStr = "FULL DATABASE SCHEMA:\n\n";
+    Object.entries(tables).forEach(([name, data]) => {
+      schemaStr += `TABLE: ${name}\nDESCRIPTION: ${data.desc}\nCOLUMNS:\n- ${data.cols.join('\n- ')}\n\n`;
+    });
+
+    if (fkData.length > 0) {
+      schemaStr += "FOREIGN KEY RELATIONSHIPS:\n";
+      fkData.forEach(fk => {
+        schemaStr += `- ${fk.ParentTable}.${fk.ParentColumn} -> ${fk.ReferencedTable}.${fk.ReferencedColumn} (${fk.ConstraintName})\n`;
+      });
+    }
+
+    return schemaStr;
+  };
+
   const SQL_TABLE_QUERY = `SELECT 
     DB_NAME() AS [DatabaseName],
     t.name AS [TableName],
@@ -299,22 +333,6 @@ JOIN sys.foreign_key_columns fkc ON fk.object_id = fkc.constraint_object_id;`;
     });
   }, [tablesData, selectedDb, tableSearchTerm, columnSearchTerm]);
 
-  const callGemini = async (prompt) => {
-    const schemaSummary = filteredTables.slice(0, 15).map(t =>
-      `${t.name}: ${t.description} (${t.columns.map(c => c.name).join(', ')})`
-    ).join('\n');
-    const systemInstruction = `You are a SQL Architect. Database: ${selectedDb}. Schema: ${schemaSummary}`;
-    try {
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${API_KEY}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], systemInstruction: { parts: [{ text: systemInstruction }] } })
-      });
-      const data = await response.json();
-      return data.candidates?.[0]?.content?.parts?.[0]?.text || "Error processing request.";
-    } catch (error) { return "Error connecting to AI service."; }
-  };
-
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!userInput.trim()) return;
@@ -322,7 +340,21 @@ JOIN sys.foreign_key_columns fkc ON fk.object_id = fkc.constraint_object_id;`;
     setUserInput('');
     setChatMessages(prev => [...prev, { role: 'user', text: userMsg }]);
     setIsChatLoading(true);
-    const aiResponse = await callGemini(userMsg);
+
+    const aiResponse = await callAI({
+      prompt: userMsg,
+      tablesData,
+      fkData,
+      selectedDb,
+      config: {
+        aiProvider,
+        vertexProject,
+        vertexLocation,
+        vertexToken,
+        apiKey: API_KEY // Pass API_KEY here
+      }
+    });
+
     setChatMessages(prev => [...prev, { role: 'assistant', text: aiResponse }]);
     setIsChatLoading(false);
   };
@@ -340,6 +372,14 @@ JOIN sys.foreign_key_columns fkc ON fk.object_id = fkc.constraint_object_id;`;
         handleFileUpload={handleFileUpload}
         tablesData={tablesData}
         fkData={fkData}
+        aiProvider={aiProvider}
+        setAiProvider={setAiProvider}
+        vertexProject={vertexProject}
+        setVertexProject={setVertexProject}
+        vertexLocation={vertexLocation}
+        setVertexLocation={setVertexLocation}
+        vertexToken={vertexToken}
+        setVertexToken={setVertexToken}
       />
 
       <main className="flex-1 overflow-auto p-8 max-w-7xl mx-auto">
